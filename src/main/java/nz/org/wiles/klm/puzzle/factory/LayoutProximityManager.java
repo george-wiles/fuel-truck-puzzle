@@ -1,5 +1,6 @@
 package nz.org.wiles.klm.puzzle.factory;
 
+import nz.org.wiles.klm.puzzle.model.FuelTruck;
 import nz.org.wiles.klm.puzzle.model.Grid;
 import nz.org.wiles.klm.puzzle.model.Plane;
 import nz.org.wiles.klm.puzzle.model.VehicleType;
@@ -52,12 +53,12 @@ public class LayoutProximityManager {
         if (plane != null) {
           layout[row][col] = Grid.builder().vehicle(plane).occupationType(PLANE).build();
           if (rowFuelTruckCount[row] > 0) {
-            peekLeft(row, col, layout);
-            peekRight(row, col, layout);
+            setLeftWithGrid(row, col, layout, Grid.builder().occupationType(AVAILABLE).build());
+            setRightWithGrid(row, col, layout, Grid.builder().occupationType(AVAILABLE).build());
           }
           if (colFuelTruckCount[col] > 0) {
-            peekAbove(row, col, layout);
-            peekBelow(row, col, layout);
+            setAboveWithGrid(row, col, layout, Grid.builder().occupationType(AVAILABLE).build());
+            setBelowWithGrid(row, col, layout, Grid.builder().occupationType(AVAILABLE).build());
           }
         } else {
           boolean noFuelTruckAtPointIsPossible = (rowFuelTruckCount[row] == 0 || colFuelTruckCount[col] == 0);
@@ -73,50 +74,38 @@ public class LayoutProximityManager {
   }
 
 
-  private void peekLeft(int row, int col, Grid[][] layout) {
-    Grid current = layout[row][col];
-    if (col > 0 && PLANE == current.getOccupationType()) {
-      Grid left = layout[row][col-1];
-      if (PLANE != left.getOccupationType()) {
-        left.setOccupationType(AVAILABLE);
+  private void setLeftWithGrid(int row, int col, Grid[][] layout, Grid setGrid) {
+    int left = col - 1;
+    if (col > 0) {
+      if (layout[row][left] == null || !layout[row][left].isOccupied()) {
+        layout[row][left] = setGrid;
       }
     }
   }
 
-  private void peekRight(int row, int col, Grid[][] layout) {
-    Grid current = layout[row][col];
-    if (col+1 < layout[row].length  && PLANE == current.getOccupationType()) {
-      Grid right = layout[row][col+1];
-      if (right == null) {
-        layout[row][col+1] = Grid.builder().occupationType(AVAILABLE).build();
-      } else if (!PLANE.equals(right.getOccupationType())) {
-        right.setOccupationType(AVAILABLE);
+  private void setRightWithGrid(int row, int col, Grid[][] layout, Grid setGrid) {
+    int right = col + 1;
+    if (right < layout[row].length ) {
+      if (layout[row][right] == null || !layout[row][right].isOccupied()) {
+        layout[row][right] = setGrid;
       }
     }
   }
 
-  private void peekAbove(int row, int col, Grid[][] layout) {
-    Grid current = layout[row][col];
-    if (row > 0  && PLANE == current.getOccupationType()) {
-      Grid above = layout[row-1][col];
-      if (PLANE != above.getOccupationType()) {
-        if (above == null) {
-          layout[row-1][col] = Grid.builder().occupationType(AVAILABLE).build();
-        } else {
-          above.setOccupationType(AVAILABLE);
-        }
+  private void setAboveWithGrid(int row, int col, Grid[][] layout, Grid setGrid) {
+    int above = row - 1;
+    if (row > 0) {
+      if (layout[above][col] == null || !layout[above][col].isOccupied()) {
+        layout[above][col] = setGrid;
       }
     }
   }
 
-  private void peekBelow(int row, int col, Grid[][] layout) {
-    Grid current = layout[row][col];
-    if (row + 1 < layout.length  && PLANE == current.getOccupationType()) {
-      Grid below = layout[row+1][col];
-      if (below == null) {
-        layout[row+1][col] = Grid.builder().occupationType(AVAILABLE).build();
-      } else if (PLANE != below.getOccupationType()) {
-        below.setOccupationType(AVAILABLE);
+  private void setBelowWithGrid(int row, int col, Grid[][] layout, Grid setGrid) {
+    int below = row + 1;
+    if (below < layout.length) {
+      if (layout[below][col] == null || !layout[below][col].isOccupied()) {
+        layout[below][col] = setGrid;
       }
     }
   }
@@ -142,33 +131,47 @@ public class LayoutProximityManager {
     }
     if (LEFT.equals(direction)) {
       if (col > 0) {
-        layout[row][col-1].setOccupationType(FUEL_TRUCK);
-        setAvailabilityAfterAllocation(row, col, layout);
+        layout[row][col-1] =
+            Grid.builder()
+                .vehicle(new FuelTruck(new Point(row,col-1)))
+                .occupationType(FUEL_TRUCK).build();
+        setAvailabilityAfterAllocation(row, col-1, layout);
       }
     }
     if (RIGHT.equals(direction)) {
       if (col+1 < layout[row].length) {
-        layout[row][col+1].setOccupationType(FUEL_TRUCK);
-        setAvailabilityAfterAllocation(row, col, layout);
+        layout[row][col+1] =
+            Grid.builder()
+                .vehicle(new FuelTruck(new Point(row,col+1)))
+                .occupationType(FUEL_TRUCK).build();
+        setAvailabilityAfterAllocation(row, col+1, layout);
       }
     }
     if (ABOVE.equals(direction)) {
       if (row > 0) {
-        layout[row-1][col].setOccupationType(FUEL_TRUCK);
-        setAvailabilityAfterAllocation(row, col, layout);
+        layout[row-1][col] =
+            Grid.builder()
+                .vehicle(new FuelTruck(new Point(row-1,col)))
+                .occupationType(FUEL_TRUCK).build();
+        setAvailabilityAfterAllocation(row-1, col, layout);
       }
     }
     if (BELOW.equals(direction)) {
-      if (row + 1 > layout[row].length) {
-        layout[row+1][col].setOccupationType(FUEL_TRUCK);
-        setAvailabilityAfterAllocation(row, col, layout);
+      if (row+1 < layout.length) {
+        layout[row+1][col] =
+            Grid.builder()
+                .vehicle(new FuelTruck(new Point(row+1,col)))
+                .occupationType(FUEL_TRUCK).build();
+        setAvailabilityAfterAllocation(row+1, col, layout);
       }
     }
   }
 
   private void setAvailabilityAfterAllocation(int row, int col, Grid[][] layout) {
-    final Grid current = layout[row][col];
-
+    setLeftWithGrid(row, col, layout, Grid.builder().occupationType(EMPTY).build());
+    setRightWithGrid(row, col, layout, Grid.builder().occupationType(EMPTY).build());
+    setAboveWithGrid(row, col, layout, Grid.builder().occupationType(EMPTY).build());
+    setBelowWithGrid(row, col, layout, Grid.builder().occupationType(EMPTY).build());
   }
 
   private List<GridDirectionType> getAvailability(int row, int col, final Grid[][] layout) {

@@ -15,6 +15,6 @@ public class Grid {
     private OccupationType occupationType;
 
     public boolean isOccupied() {
-        return !(occupationType == null);
+        return vehicle != null;
     }
 }
