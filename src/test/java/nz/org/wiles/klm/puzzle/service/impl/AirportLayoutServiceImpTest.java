@@ -22,15 +22,15 @@ class AirportLayoutServiceImpTest {
         int[] xFuelTruckCounters = {2, 1, 1, 1, 1, 1, 2};
         int[] yFuelTruckCounters = {3, 1, 1, 1, 0, 2, 1};
         Plane[] planes = {
-                new Plane(new Point(0,2)),
-                new Plane(new Point(1,0)),
-                new Plane(new Point(1,4)),
-                new Plane(new Point(1,6)),
-                new Plane(new Point(2,6)),
-                new Plane(new Point(4,1)),
-                new Plane(new Point(5,3)),
-                new Plane(new Point(6,0)),
-                new Plane(new Point(6,6)),
+            Plane.builder().gridPos(new Point(0,2)).build(),
+            Plane.builder().gridPos(new Point(1,0)).build(),
+            Plane.builder().gridPos(new Point(1,4)).build(),
+            Plane.builder().gridPos(new Point(1,6)).build(),
+            Plane.builder().gridPos(new Point(2,6)).build(),
+            Plane.builder().gridPos(new Point(4,1)).build(),
+            Plane.builder().gridPos(new Point(5,3)).build(),
+            Plane.builder().gridPos(new Point(6,0)).build(),
+            Plane.builder().gridPos(new Point(6,6)).build(),
         };
 
         // act
@@ -50,9 +50,9 @@ class AirportLayoutServiceImpTest {
         int[] colFuelTruckCounters = {1, 1, 1, 0};
 
         Plane[] planes = {
-            new Plane(new Point(0,0)),
-            new Plane(new Point(1,2)),
-            new Plane(new Point(3,1))
+            Plane.builder().gridPos(new Point(0,0)).build(),
+            Plane.builder().gridPos(new Point(1,2)).build(),
+            Plane.builder().gridPos(new Point(3,1)).build()
         };
 
         // act
@@ -63,6 +63,8 @@ class AirportLayoutServiceImpTest {
 
         // verify
         assertEquals(4, airport.getGridLayout().getLayout().length);
+
+
     }
 
 }
