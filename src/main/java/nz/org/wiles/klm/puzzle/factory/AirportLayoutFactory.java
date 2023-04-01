@@ -2,7 +2,7 @@ package nz.org.wiles.klm.puzzle.factory;
 
 import nz.org.wiles.klm.puzzle.model.Airport;
 import nz.org.wiles.klm.puzzle.model.Grid;
-import nz.org.wiles.klm.puzzle.model.GridLayout;
+import nz.org.wiles.klm.puzzle.model.grid.GridLayout;
 import nz.org.wiles.klm.puzzle.model.Plane;
 import org.springframework.stereotype.Component;
 
@@ -21,17 +21,19 @@ public class AirportLayoutFactory {
     }
 
     public Airport create(int[] rowFuelTruckCounters,
-                                int[] colFuelTruckCounters,
-                                Plane[] planes) {
+                          int[] colFuelTruckCounters,
+                          Plane[] planes) {
 
         final Map<Point, Plane> planesByPoint = Arrays.stream(planes).collect(
                 Collectors.toMap(
                         plane -> plane.getGridPos(),
                         plane -> plane));
 
+        System.out.println("########   CREATE LAYOUT  ##########");
         final Grid[][] layout = layoutProximityManager.createLayout(
             rowFuelTruckCounters, colFuelTruckCounters, planesByPoint);
-
+        System.out.println("########   CREATE LAYOUT COMPLETE ##########");
+        logLayout(layout);
         final GridLayout gridLayout = GridLayout.builder()
                 .layout(layout)
                 .build();
@@ -43,5 +45,13 @@ public class AirportLayoutFactory {
                 .numFuelTrucks(planes.length)
                 .gridLayout(gridLayout)
                 .build();
+    }
+
+    private void logLayout(Grid[][] layout) {
+        for (int i = 0; i < layout.length; i++) {
+            System.out.println(Arrays.stream(layout[i])
+                                   .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                   .collect(Collectors.joining("|")));
+        }
     }
 }

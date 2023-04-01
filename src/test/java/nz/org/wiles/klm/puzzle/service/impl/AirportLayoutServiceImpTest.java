@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.awt.*;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,8 +21,9 @@ class AirportLayoutServiceImpTest {
     @Test
     void When_ModelSolutionIsConfigured_Then_LayoutIsAsExpected() {
         // setup
-        int[] xFuelTruckCounters = {2, 1, 1, 1, 1, 1, 2};
-        int[] yFuelTruckCounters = {3, 1, 1, 1, 0, 2, 1};
+        int[] colFuelTruckCounters = {2, 1, 1, 1, 1, 1, 2};
+        int[] rowFuelTruckCounters = {3, 1, 1, 1, 0, 2, 1};
+
         Plane[] planes = {
             Plane.builder().gridPos(new Point(0,2)).build(),
             Plane.builder().gridPos(new Point(1,0)).build(),
@@ -35,8 +38,8 @@ class AirportLayoutServiceImpTest {
 
         // act
         Airport airport = candidate.initialiseLayout(
-                xFuelTruckCounters,
-                yFuelTruckCounters,
+                rowFuelTruckCounters,
+                colFuelTruckCounters,
                 planes);
 
         // verify
@@ -44,7 +47,7 @@ class AirportLayoutServiceImpTest {
     }
 
     @Test
-    void When_SimpleSolutionIsConfigured_Then_LayoutIsAsExpected() {
+    void When_4x4and3Planes_Then_LayoutIsAsExpected() {
         // setup
         int[] rowFuelTruckCounters = {1, 0, 1, 1};
         int[] colFuelTruckCounters = {1, 1, 1, 0};
@@ -64,6 +67,61 @@ class AirportLayoutServiceImpTest {
         // verify
         assertEquals(4, airport.getGridLayout().getLayout().length);
 
+        assertEquals("P|F|E|E", Arrays.stream(airport.getGridLayout().getLayout()[0])
+            .map(grid -> grid.getOccupationType().name().substring(0, 1))
+            .collect(Collectors.joining("|")));
+
+        assertEquals("E|E|P|E", Arrays.stream(airport.getGridLayout().getLayout()[1])
+                                    .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                    .collect(Collectors.joining("|")));
+
+        assertEquals("E|E|F|E", Arrays.stream(airport.getGridLayout().getLayout()[2])
+                                    .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                    .collect(Collectors.joining("|")));
+
+        assertEquals("F|P|E|E", Arrays.stream(airport.getGridLayout().getLayout()[3])
+                                    .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                    .collect(Collectors.joining("|")));
+
+    }
+
+    @Test
+    void When_4x4and4Planes_Then_LayoutIsAsExpected() {
+        // setup
+        int[] rowFuelTruckCounters = {2, 0, 1, 1};
+        int[] colFuelTruckCounters = {1, 1, 1, 1};
+
+        Plane[] planes = {
+            Plane.builder().gridPos(new Point(0,0)).build(),
+            Plane.builder().gridPos(new Point(3,0)).build(),
+            Plane.builder().gridPos(new Point(1,3)).build(),
+            Plane.builder().gridPos(new Point(2,2)).build()
+        };
+
+        // act
+        Airport airport = candidate.initialiseLayout(
+            rowFuelTruckCounters,
+            colFuelTruckCounters,
+            planes);
+
+        // verify
+        assertEquals(4, airport.getGridLayout().getLayout().length);
+
+        assertEquals("P|F|E|F", Arrays.stream(airport.getGridLayout().getLayout()[0])
+                                    .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                    .collect(Collectors.joining("|")));
+
+        assertEquals("E|E|E|P", Arrays.stream(airport.getGridLayout().getLayout()[1])
+                                    .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                    .collect(Collectors.joining("|")));
+
+        assertEquals("F|E|P|E", Arrays.stream(airport.getGridLayout().getLayout()[2])
+                                    .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                    .collect(Collectors.joining("|")));
+
+        assertEquals("P|E|F|E", Arrays.stream(airport.getGridLayout().getLayout()[3])
+                                    .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                    .collect(Collectors.joining("|")));
 
     }
 

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nz.org.wiles.klm.puzzle.model.grid.GridLayout;
 
 @Data
 @NoArgsConstructor

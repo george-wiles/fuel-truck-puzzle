@@ -1,25 +1,25 @@
 package nz.org.wiles.klm.puzzle.factory;
 
-import nz.org.wiles.klm.puzzle.model.FuelTruck;
 import nz.org.wiles.klm.puzzle.model.Grid;
 import nz.org.wiles.klm.puzzle.model.Plane;
+import nz.org.wiles.klm.puzzle.model.grid.GridRelativeLocation;
 import org.springframework.stereotype.Component;
 
-import java.awt.Point;
+import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import static nz.org.wiles.klm.puzzle.factory.GridDirectionType.ABOVE;
-import static nz.org.wiles.klm.puzzle.factory.GridDirectionType.BELOW;
-import static nz.org.wiles.klm.puzzle.factory.GridDirectionType.LEFT;
-import static nz.org.wiles.klm.puzzle.factory.GridDirectionType.RIGHT;
 import static nz.org.wiles.klm.puzzle.model.OccupationType.AVAILABLE;
 import static nz.org.wiles.klm.puzzle.model.OccupationType.EMPTY;
-import static nz.org.wiles.klm.puzzle.model.OccupationType.FUEL_TRUCK;
 import static nz.org.wiles.klm.puzzle.model.OccupationType.PLANE;
+import static nz.org.wiles.klm.puzzle.model.grid.GridDirectionType.ABOVE;
+import static nz.org.wiles.klm.puzzle.model.grid.GridDirectionType.BELOW;
+import static nz.org.wiles.klm.puzzle.model.grid.GridDirectionType.LEFT;
+import static nz.org.wiles.klm.puzzle.model.grid.GridDirectionType.RIGHT;
 
 /**
  * Represents a manager for creating and validating a layout grid for planes and their fueling
@@ -28,16 +28,29 @@ import static nz.org.wiles.klm.puzzle.model.OccupationType.PLANE;
 @Component
 public class LayoutProximityManager {
 
-  public Grid[][] createLayout(int[] rowFuelTruckCount, int[] colFuelTruckCount, Map<Point, Plane> planesByPoint) {
+  private final LayoutProximityAllocator layoutAllocator;
 
-    final Grid[][] layout = createAvailabilityLayout(rowFuelTruckCount, colFuelTruckCount, planesByPoint);
-    logLayout("## Airport Availability Layout is ##", layout);
+  LayoutProximityManager(LayoutProximityAllocator layoutAllocator) {
+    this.layoutAllocator = layoutAllocator;
+  }
 
-    calculateAvailableFuelingPositions(layout, rowFuelTruckCount, colFuelTruckCount, planesByPoint);
-    allocateFuellingTrucks(layout, rowFuelTruckCount, colFuelTruckCount, planesByPoint);
-    logLayout("## Airport Complete Layout is ##", layout);
+  public Grid[][] createLayout(int[] rowFuelTruckCount, int[] colFuelTruckCount, Map<Point, Plane> pointByPlanes) {
+    final LayoutValidator validator = new LayoutValidator(rowFuelTruckCount, colFuelTruckCount);
+    final Grid[][] layout = createAvailabilityLayout(rowFuelTruckCount, colFuelTruckCount, pointByPlanes);
 
-    return layout;
+    final Map<Point, Plane> available = calculateAvailableFuelingPositions(
+        layout, rowFuelTruckCount, colFuelTruckCount, pointByPlanes);
+
+    final List<Plane> planes = pointByPlanes.values().stream().distinct()
+                             .sorted(Comparator.comparingInt(Plane::getAvailableCount))
+                             .collect(Collectors.toList());
+
+    for(Plane plane: planes) {
+      System.out.println("plane -> " + plane);
+    }
+
+    return layoutAllocator.allocate(layout, validator, planes, available);
+
   }
 
   private Grid[][] createAvailabilityLayout(int[] rowFuelTruckCount, int[] colFuelTruckCount, Map<Point, Plane> planesByPoint) {
@@ -83,7 +96,7 @@ public class LayoutProximityManager {
 
   private void setRightWithGrid(int row, int col, Grid[][] layout, Grid setGrid) {
     int right = col + 1;
-    if (right < layout[row].length ) {
+    if (right < layout[row].length) {
       if (layout[row][right] == null || !layout[row][right].isOccupied()) {
         layout[row][right] = setGrid;
       }
@@ -108,123 +121,54 @@ public class LayoutProximityManager {
     }
   }
 
-  private void allocateFuellingTrucks(final Grid[][] layout, int[] rowFuelTruckCount, int[] colFuelTruckCount, Map<Point, Plane> planesByPoint) {
+  private Map<Point, Plane> calculateAvailableFuelingPositions(final Grid[][] layout, int[] rowCount, int[] colCount, Map<Point, Plane> planesByPoint) {
+    final Map<Point, Plane> availableFuelingPositions = new HashMap<>();
     final List<Point> points = planesByPoint.keySet().stream().collect(Collectors.toList());
+
     for (Point point : points) {
       final Plane plane = planesByPoint.get(point);
-      if (plane.getFuelTruckLocation() != null) {
-        // unwind recursion loop
-        return;
-      }
-      // allocate a fuel truck to plane from relative position
-      final List<GridRelativeLocation> availableLocations = plane.getAvailableFuelingPoints();
-      if (availableLocations.size() == 1) {
-        final GridRelativeLocation location = availableLocations.get(0);
-        final Point current = location.getLocation();
-        allocateFuellingTruck(current.x, current.y, layout, location.getDirection());
+      final List<GridRelativeLocation> available = getAvailability(point, layout, rowCount, colCount);
+      plane.setAvailableFuelingPoints(available.stream().map(e -> e.getDirection()).collect(Collectors.toList()));
+      for (GridRelativeLocation relativeLocation : available) {
+        availableFuelingPositions.put(relativeLocation.getLocation(), plane);
       }
     }
+    return availableFuelingPositions;
   }
 
-  private void calculateAvailableFuelingPositions(final Grid[][] layout, int[] rowFuelTruckCount, int[] colFuelTruckCount, Map<Point, Plane> planesByPoint) {
-    final List<Point> points = planesByPoint.keySet().stream().collect(Collectors.toList());
-    for (Point point: points) {
-      final Plane plane = planesByPoint.get(point);
-      final List<GridRelativeLocation> available = getAvailability(point.x, point.y, layout);
-      plane.setAvailableFuelingPoints(available);
-      System.out.println("Plane: " + plane);
-    }
-  }
 
-  private void allocateFuellingTruck(int row, int col, Grid[][] layout, GridDirectionType direction) {
-    if (PLANE != layout[row][col].getOccupationType()) {
-      return;
-    }
-    if (LEFT.equals(direction)) {
-      if (col > 0) {
-        layout[row][col-1] =
-            Grid.builder()
-                .vehicle(new FuelTruck(new Point(row,col-1)))
-                .occupationType(FUEL_TRUCK).build();
-        setAvailabilityAfterAllocation(row, col-1, layout);
-      }
-    }
-    if (RIGHT.equals(direction)) {
-      if (col+1 < layout[row].length) {
-        layout[row][col+1] =
-            Grid.builder()
-                .vehicle(new FuelTruck(new Point(row,col+1)))
-                .occupationType(FUEL_TRUCK).build();
-        setAvailabilityAfterAllocation(row, col+1, layout);
-      }
-    }
-    if (ABOVE.equals(direction)) {
-      if (row > 0) {
-        layout[row-1][col] =
-            Grid.builder()
-                .vehicle(new FuelTruck(new Point(row-1,col)))
-                .occupationType(FUEL_TRUCK).build();
-        setAvailabilityAfterAllocation(row-1, col, layout);
-      }
-    }
-    if (BELOW.equals(direction)) {
-      if (row+1 < layout.length) {
-        layout[row+1][col] =
-            Grid.builder()
-                .vehicle(new FuelTruck(new Point(row+1,col)))
-                .occupationType(FUEL_TRUCK).build();
-        setAvailabilityAfterAllocation(row+1, col, layout);
-      }
-    }
-  }
-
-  private void setAvailabilityAfterAllocation(int row, int col, Grid[][] layout) {
-    setLeftWithGrid(row, col, layout, Grid.builder().occupationType(EMPTY).build());
-    setRightWithGrid(row, col, layout, Grid.builder().occupationType(EMPTY).build());
-    setAboveWithGrid(row, col, layout, Grid.builder().occupationType(EMPTY).build());
-    setBelowWithGrid(row, col, layout, Grid.builder().occupationType(EMPTY).build());
-  }
-
-  private List<GridRelativeLocation> getAvailability(int row, int col, final Grid[][] layout) {
+  private List<GridRelativeLocation> getAvailability(Point point, final Grid[][] layout, int[] rowCount, int[] colCount) {
     List<GridRelativeLocation> available = new ArrayList<>();
 
-    if (isGridRightAvailable(row, col, layout)) {
-      available.add(GridRelativeLocation.builder().direction(RIGHT).location(new Point(row, col)).build());
+    if (isGridRightAvailable(point.x, point.y, layout, rowCount, colCount)) {
+      available.add(GridRelativeLocation.builder().direction(RIGHT).location(new Point(point.x, point.y + 1)).build());
     }
-    if (isGridLeftAvailable(row, col, layout)) {
-      available.add(GridRelativeLocation.builder().direction(LEFT).location(new Point(row, col)).build());
+    if (isGridLeftAvailable(point.x, point.y, layout, rowCount, colCount)) {
+      available.add(GridRelativeLocation.builder().direction(LEFT).location(new Point(point.x, point.y - 1)).build());
     }
-    if (isGridAboveAvailable(row, col, layout)) {
-      available.add(GridRelativeLocation.builder().direction(ABOVE).location(new Point(row, col)).build());
+    if (isGridAboveAvailable(point.x, point.y, layout, rowCount, colCount)) {
+      available.add(GridRelativeLocation.builder().direction(ABOVE).location(new Point(point.x - 1, point.y)).build());
     }
-    if (isGridBelowAvailable(row, col, layout)) {
-      available.add(GridRelativeLocation.builder().direction(BELOW).location(new Point(row, col)).build());
+    if (isGridBelowAvailable(point.x, point.y, layout, rowCount, colCount)) {
+      available.add(GridRelativeLocation.builder().direction(BELOW).location(new Point(point.x + 1, point.y)).build());
     }
     return available;
   }
 
-  private boolean isGridRightAvailable(int row, int col, Grid[][] layout) {
-    return (col+1 < layout[row].length && AVAILABLE == layout[row][col+1].getOccupationType());
+  private boolean isGridRightAvailable(int row, int col, Grid[][] layout, int[] rowCount, int[] colCount) {
+    return (col + 1 < layout[row].length && !layout[row][col + 1].isOccupied() && rowCount[row] > 0 && colCount[col+1] > 0);
   }
 
-  private boolean isGridLeftAvailable(int row, int col, Grid[][] layout) {
-    return (col > 0 && AVAILABLE == layout[row][col-1].getOccupationType());
+  private boolean isGridLeftAvailable(int row, int col, Grid[][] layout, int[] rowCount, int[] colCount) {
+    return (col > 0 && !layout[row][col - 1].isOccupied() && rowCount[row] > 0 && colCount[col-1] > 0);
   }
 
-  private boolean isGridAboveAvailable(int row, int col, Grid[][] layout) {
-    return (row > 0 && AVAILABLE == layout[row-1][col].getOccupationType());
+  private boolean isGridAboveAvailable(int row, int col, Grid[][] layout, int[] rowCount, int[] colCount) {
+    return (row > 0 && !layout[row - 1][col].isOccupied() && rowCount[row-1] > 0 && colCount[col] > 0);
   }
 
-  private boolean isGridBelowAvailable(int row, int col, Grid[][] layout) {
-    return (row+1 < layout.length  && AVAILABLE == layout[row+1][col].getOccupationType());
+  private boolean isGridBelowAvailable(int row, int col, Grid[][] layout, int[] rowCount, int[] colCount) {
+    return (row + 1 < layout.length && !layout[row + 1][col].isOccupied() && rowCount[row+1] > 0 && colCount[col] > 0);
   }
 
-  private void logLayout(String heading, Grid[][] layout) {
-    System.out.println(heading);
-    for (int i = 0; i < layout.length; i++) {
-      System.out.println(Arrays.stream(layout[i])
-                             .map(grid -> grid.getOccupationType().name().substring(0, 1))
-                             .collect(Collectors.joining("|")));
-    }
-  }
 }
