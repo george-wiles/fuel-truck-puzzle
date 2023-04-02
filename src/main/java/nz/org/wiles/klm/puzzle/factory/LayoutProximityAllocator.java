@@ -8,8 +8,6 @@ import nz.org.wiles.klm.puzzle.model.grid.GridLayout;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,43 +41,44 @@ public class LayoutProximityAllocator {
     this.validator = validator;
     this.solution = GridLayout.copyLayout(layout);
 
-    if (allocateSolution(solution, layout.length, 0)) {
+    allocateAll(solution);
+    boolean isGridValid = validator.validateLayout(solution);
+    if (isGridValid) {
       return solution;
     }
+
     // no solution found.
     throw new RuntimeException("No Solution found!");
   }
 
-  private boolean allocateSolution(final Grid[][] grid, int maxCount, int row) {
-    if (row == maxCount) {
-      return true;
-    }
-    for (int col = 0; col < grid[row].length; col++) {
-      Grid pos = grid[row][col];
-      System.out.println(String.format("  (%d,%d) pos: [%s]", row, col, pos));
-      if (pos.hasPlane() && !((Plane)pos.getVehicle()).isFuelling()) {
-        Plane plane = (Plane)pos.getVehicle();
-        for (GridDirectionType direction: plane.getAvailableFuelingPoints()) {
-          Point to = directionToGrid(row, col, direction);
-          if (validator.isAvailable(to, grid)) {
-            plane.setFuelTruckLocation(Grid.builder().vehicle(FuelTruck.builder().gridPos(to).build()).occupationType(FUEL_TRUCK).build());
-            grid[to.x][to.y] = plane.getFuelTruckLocation();
-            if (allocateSolution(grid, maxCount, row+1)) {
-              System.out.println(String.format("     (%d, %d) allocate() -> return true", row, col));
-              return true;
-            } else {
-              grid[to.x][to.y] = Grid.builder().occupationType(EMPTY).build();
-              plane.setFuelTruckLocation(null);
-              System.out.println(String.format("     (%d, %d) allocate() -> return false", row, col));
+  private boolean allocateAll(final Grid[][] grid) {
+    for (int row = 0; row < grid.length; row++) {
+      for (int col = 0; col < grid[row].length; col++) {
+        Grid pos = grid[row][col];
+        System.out.println(String.format("  (%d,%d) pos: [%s]", row, col, pos));
+        if (pos.hasPlane() && !((Plane)pos.getVehicle()).isFuelling()) {
+          Plane plane = (Plane)pos.getVehicle();
+          for (GridDirectionType direction: plane.getAvailableFuelingPoints()) {
+            Point to = directionToGrid(row, col, direction);
+            if (validator.isAvailable(to, grid)) {
+              plane.setFuelTruckLocation(Grid.builder().vehicle(FuelTruck.builder().gridPos(to).build()).occupationType(FUEL_TRUCK).build());
+              grid[to.x][to.y] = plane.getFuelTruckLocation();
+              if (allocateAll(grid)) {
+                System.out.println(String.format("     (%d, %d) allocate() -> return true", row, col));
+                return true;
+              } else {
+                grid[to.x][to.y] = Grid.builder().occupationType(EMPTY).build();
+                plane.setFuelTruckLocation(null);
+                System.out.println(String.format("     (%d, %d) allocate() -> return false", row, col));
+              }
             }
           }
+          System.out.println(String.format("     (%d, %d) plane %s -> return false", row, col, plane));
+          return false;
         }
-        System.out.println(String.format("     (%d, %d) plane %s -> return false", plane));
-        return false;
       }
     }
-    System.out.println(String.format("  {} -> return true"));
-
+    System.out.println(String.format("  finished -> return true"));
     return true;
   }
 

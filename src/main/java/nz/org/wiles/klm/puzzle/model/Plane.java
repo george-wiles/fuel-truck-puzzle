@@ -5,9 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import nz.org.wiles.klm.puzzle.model.grid.GridDirectionType;
-import nz.org.wiles.klm.puzzle.model.grid.GridRelativeLocation;
 
-import java.awt.Point;
+import java.awt.*;
 import java.util.List;
 
 @Data

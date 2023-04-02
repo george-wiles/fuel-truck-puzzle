@@ -43,7 +43,37 @@ class AirportLayoutServiceImpTest {
                 planes);
 
         // verify
-        assertEquals(7, airport.getGridLayout().getLayout().length);
+        assertEquals("F|E|P|E|F|E|F", Arrays.stream(airport.getGridLayout().getLayout()[0])
+                                          .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                          .collect(Collectors.joining("|")));
+
+        assertEquals("P|E|F|E|P|E|P", Arrays.stream(airport.getGridLayout().getLayout()[1])
+                                          .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                          .collect(Collectors.joining("|")));
+
+        assertEquals("E|E|E|E|E|F|P", Arrays.stream(airport.getGridLayout().getLayout()[2])
+                                          .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                          .collect(Collectors.joining("|")));
+
+        assertEquals("E|F|E|E|E|E|E", Arrays.stream(airport.getGridLayout().getLayout()[3])
+                                          .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                          .collect(Collectors.joining("|")));
+
+        assertEquals("F|E|P|E|F|E|F", Arrays.stream(airport.getGridLayout().getLayout()[0])
+                                          .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                          .collect(Collectors.joining("|")));
+
+        assertEquals("P|E|F|E|P|E|P", Arrays.stream(airport.getGridLayout().getLayout()[1])
+                                          .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                          .collect(Collectors.joining("|")));
+
+        assertEquals("E|E|E|E|E|F|P", Arrays.stream(airport.getGridLayout().getLayout()[2])
+                                          .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                          .collect(Collectors.joining("|")));
+
+        assertEquals("E|F|E|E|E|E|E", Arrays.stream(airport.getGridLayout().getLayout()[3])
+                                          .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                          .collect(Collectors.joining("|")));
     }
 
     @Test
@@ -68,8 +98,8 @@ class AirportLayoutServiceImpTest {
         assertEquals(4, airport.getGridLayout().getLayout().length);
 
         assertEquals("P|F|E|E", Arrays.stream(airport.getGridLayout().getLayout()[0])
-            .map(grid -> grid.getOccupationType().name().substring(0, 1))
-            .collect(Collectors.joining("|")));
+                                    .map(grid -> grid.getOccupationType().name().substring(0, 1))
+                                    .collect(Collectors.joining("|")));
 
         assertEquals("E|E|P|E", Arrays.stream(airport.getGridLayout().getLayout()[1])
                                     .map(grid -> grid.getOccupationType().name().substring(0, 1))
@@ -82,6 +112,7 @@ class AirportLayoutServiceImpTest {
         assertEquals("F|P|E|E", Arrays.stream(airport.getGridLayout().getLayout()[3])
                                     .map(grid -> grid.getOccupationType().name().substring(0, 1))
                                     .collect(Collectors.joining("|")));
+
 
     }
 
