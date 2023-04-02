@@ -3,7 +3,6 @@ package nz.org.wiles.klm.puzzle;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-
 /**
  * Situation:
  * • 9 aircraft are parked at an airport and need to be refuelled before they can take off.

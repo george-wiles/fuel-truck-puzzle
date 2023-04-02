@@ -15,6 +15,10 @@ public class Grid {
     private OccupationType occupationType;
 
     public boolean isOccupied() {
-        return !(occupationType == null);
+        return vehicle != null;
+    }
+
+    public boolean hasPlane() {
+        return isOccupied() && VehicleType.PLANE == vehicle.getVehicleType();
     }
 }

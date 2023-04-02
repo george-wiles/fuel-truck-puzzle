@@ -1,4 +1,4 @@
-package nz.org.wiles.klm.puzzle.factory;
+package nz.org.wiles.klm.puzzle.model.grid;
 
 public enum GridDirectionType {
   LEFT,
