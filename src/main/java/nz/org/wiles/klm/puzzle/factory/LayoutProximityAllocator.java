@@ -32,53 +32,66 @@ import static nz.org.wiles.klm.puzzle.model.grid.GridDirectionType.RIGHT;
 @Component
 public class LayoutProximityAllocator {
 
+  private Grid[][] solution;
+
+  private LayoutValidator validator;
+
+  LayoutProximityAllocator() {
+  }
+
   public Grid[][] allocate(final Grid[][] layout, LayoutValidator validator, List<Plane> planes, Map<Point, Plane> available) {
+    this.validator = validator;
+    this.solution = GridLayout.copyLayout(layout);
 
-    for (Plane plane : planes) {
-      System.out.println(String.format("Running first trial starting with plane at [%s]", plane.getGridPos()));
-      final Grid[][] trialLayout = GridLayout.copyLayout(layout);
-      final Map<Point, Plane> trialAvailable =
-          available.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-
-      allocateFuellingTrucks(trialLayout, validator, plane, trialAvailable);
-
-      if (validator.validate(trialLayout)) {
-        System.out.println(String.format("Solution found starting with plane at [%s]", plane.getGridPos()));
-        return trialLayout;
-      }
-      System.out.println(String.format("Solution not found starting with plane at [%s]", plane.getGridPos()));
-      System.out.println("");
+    if (allocateSolution(solution, layout.length, 0)) {
+      return solution;
     }
     // no solution found.
     throw new RuntimeException("No Solution found!");
   }
 
-  private boolean allocateFuellingTrucks(final Grid[][] layout, LayoutValidator validator, Plane plane, Map<Point, Plane> available) {
-    if (available.isEmpty()) {
-      return false;
+  private boolean allocateSolution(final Grid[][] grid, int maxCount, int row) {
+    if (row == maxCount) {
+      return true;
     }
-    while (!available.isEmpty()) {
-      final List<Point> availablePointsForPlane = available.entrySet().stream()
-                                    .filter(e -> e.getValue().getGridPos().equals(plane.getGridPos()))
-                                    .map(Map.Entry::getKey)
-                                    .collect(Collectors.toList());
-      for (Point allocateTo: availablePointsForPlane) {
-        //Point allocateTo = evaluateLocation(layout, plane, available);
-        System.out.println(String.format("  Plane [%s] -> Truck [%s] -> available [%d]", plane.getGridPos(), allocateTo, available.size()));
-        allocateTruckToGrid(plane, allocateTo, layout, available);
-        if (!available.isEmpty()) {
-          final List<Plane> planes = available.values().stream().distinct()
-                                         .sorted(Comparator.comparingInt(Plane::getAvailableCount))
-                                         .collect(Collectors.toList());
-          if (!allocateFuellingTrucks(layout, validator, planes.get(0), available)) {
-            System.out.println(String.format("  !allocateFuellingTrucks.isEmpty()  Plane [%s] -> Truck [%s] ", plane.getGridPos(), allocateTo));
+    for (int col = 0; col < grid[row].length; col++) {
+      Grid pos = grid[row][col];
+      System.out.println(String.format("  (%d,%d) pos: [%s]", row, col, pos));
+      if (pos.hasPlane() && !((Plane)pos.getVehicle()).isFuelling()) {
+        Plane plane = (Plane)pos.getVehicle();
+        for (GridDirectionType direction: plane.getAvailableFuelingPoints()) {
+          Point to = directionToGrid(row, col, direction);
+          if (validator.isAvailable(to, grid)) {
+            plane.setFuelTruckLocation(Grid.builder().vehicle(FuelTruck.builder().gridPos(to).build()).occupationType(FUEL_TRUCK).build());
+            grid[to.x][to.y] = plane.getFuelTruckLocation();
+            if (allocateSolution(grid, maxCount, row+1)) {
+              System.out.println(String.format("     (%d, %d) allocate() -> return true", row, col));
+              return true;
+            } else {
+              grid[to.x][to.y] = Grid.builder().occupationType(EMPTY).build();
+              plane.setFuelTruckLocation(null);
+              System.out.println(String.format("     (%d, %d) allocate() -> return false", row, col));
+            }
           }
-        } else {
-          System.out.println(String.format("  !available.isEmpty()  Plane [%s] -> Truck [%s] ", plane.getGridPos(), allocateTo));
         }
+        System.out.println(String.format("     (%d, %d) plane %s -> return false", plane));
+        return false;
       }
     }
-    return false;
+    System.out.println(String.format("  {} -> return true"));
+
+    return true;
+  }
+
+  /**
+   * Convert direction to point. NOTE: At this point all relative position
+   * for a plane are within the bounds of grid.
+   */
+  private Point directionToGrid(int row, int col, GridDirectionType direction) {
+    if (LEFT.equals(direction) || RIGHT.equals(direction)) {
+      return LEFT.equals(direction) ? new Point(row, col - 1) : new Point(row, col + 1);
+    }
+    return ABOVE.equals(direction) ? new Point(row - 1, col) : new Point(row + 1, col);
   }
 
   private Map<Point, Plane> allocateTruckToGrid(Plane plane, Point allocateTo, Grid[][] layout, Map<Point, Plane> available) {

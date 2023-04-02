@@ -31,4 +31,8 @@ public final class Plane implements Vehicle {
         return (availableFuelingPoints == null) ? 0 : availableFuelingPoints.size();
     }
 
+    public boolean isFuelling() {
+        return fuelTruckLocation != null ? true : false;
+    }
+
 }

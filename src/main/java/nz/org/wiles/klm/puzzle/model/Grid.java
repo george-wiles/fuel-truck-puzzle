@@ -17,4 +17,8 @@ public class Grid {
     public boolean isOccupied() {
         return vehicle != null;
     }
+
+    public boolean hasPlane() {
+        return isOccupied() && VehicleType.PLANE == vehicle.getVehicleType();
+    }
 }

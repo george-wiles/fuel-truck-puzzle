@@ -49,8 +49,15 @@ public class LayoutProximityManager {
       System.out.println("plane -> " + plane);
     }
 
-    return layoutAllocator.allocate(layout, validator, planes, available);
-
+    Grid[][] result = layoutAllocator.allocate(layout, validator, planes, available);
+    for (int i = 0; i < result.length; i++) {
+      for (int j = 0; j < result[i].length; j++) {
+        if (!result[i][j].isOccupied()) {
+          result[i][j] = Grid.builder().occupationType(EMPTY).build();
+        }
+      }
+    }
+    return result;
   }
 
   private Grid[][] createAvailabilityLayout(int[] rowFuelTruckCount, int[] colFuelTruckCount, Map<Point, Plane> planesByPoint) {

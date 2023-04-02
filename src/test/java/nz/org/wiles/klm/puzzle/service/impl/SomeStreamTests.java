@@ -1,9 +1,6 @@
 package nz.org.wiles.klm.puzzle.service.impl;
 
-import nz.org.wiles.klm.puzzle.model.FuelTruck;
 import nz.org.wiles.klm.puzzle.model.Grid;
-import nz.org.wiles.klm.puzzle.model.Plane;
-import nz.org.wiles.klm.puzzle.model.VehicleType;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -12,10 +9,10 @@ import static nz.org.wiles.klm.puzzle.model.OccupationType.EMPTY;
 import static nz.org.wiles.klm.puzzle.model.OccupationType.FUEL_TRUCK;
 import static nz.org.wiles.klm.puzzle.model.OccupationType.PLANE;
 
-public class DoofTest {
+public class SomeStreamTests {
 
   @Test
-  public void asdf() {
+  public void testStreamSum() {
     int[] colFuelTruckCounters = {1, 4, 1};
     int[] rowFuelTruckCounters = {3, 0, 2};
 
@@ -39,13 +36,4 @@ public class DoofTest {
     System.out.println("row[2] sum => " + Arrays.stream(layout[2]).mapToInt(e -> e.getOccupationType().equals(FUEL_TRUCK) ? 1 : 0).sum());
   }
 
-  @Test
-  public void dodo() {
-    int arr[][] = new int[][]{
-        {1, 2}, {3, 4}, {5, 6}
-    };
-
-    System.out.println("col[0] sum => " + Arrays.stream(arr).mapToInt(a -> a[0]).sum());
-    System.out.println("col[1] sum => " + Arrays.stream(arr).mapToInt(a -> a[1]).sum()); // 12
-  }
 }
