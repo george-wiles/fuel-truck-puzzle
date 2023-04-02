@@ -29,10 +29,10 @@ public class AirportLayoutFactory {
                         plane -> plane.getGridPos(),
                         plane -> plane));
 
-        System.out.println("########   CREATE LAYOUT  ##########");
+
         final Grid[][] layout = layoutProximityManager.createLayout(
             rowFuelTruckCounters, colFuelTruckCounters, planesByPoint);
-        System.out.println("########   CREATE LAYOUT COMPLETE ##########");
+
         logLayout(layout);
         final GridLayout gridLayout = GridLayout.builder()
                 .layout(layout)

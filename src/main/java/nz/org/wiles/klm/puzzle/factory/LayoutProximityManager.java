@@ -49,7 +49,7 @@ public class LayoutProximityManager {
       System.out.println("plane -> " + plane);
     }
 
-    Grid[][] result = layoutAllocator.allocate(layout, validator, planes, available);
+    Grid[][] result = layoutAllocator.allocate(layout, validator);
     for (int i = 0; i < result.length; i++) {
       for (int j = 0; j < result[i].length; j++) {
         if (!result[i][j].isOccupied()) {
