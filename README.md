@@ -1,3 +1,8 @@
+# Overview
+The KLM truck fueling puzzle has two parts: 
+(i) the Java API that solves the layout as per the General Approach and provides
+ a simple rest API to retrieve the layout.
+(ii) an Angular frontend that calls the app API and renders on a webpage.
 
 # General Approach
 1. Create a grid of m by n cells to represent the parking lot, plane and the fuel trucks.
@@ -7,6 +12,9 @@
 5. For each row and column, find all the possible combinations of fuel truck locations that satisfy the total number of fuel trucks required.
 6. Use a recursive backtracking algorithm to try all possible combinations of fuel truck locations starting from position [0][0].
 7. If a solution is found, return the grid with the plane and fuel truck locations. If no solution is found, return an error message.
+
+# 1. App Java based algorithm with simple REST API
+Location: app
 
 # Test driven approach
 TEST: AirportLayoutServiceImpTest.java
@@ -62,6 +70,22 @@ Object Orientation approach, which in hindsight was a bit
 overkill, with time constraints probably should have just
 written a simple standalone application with limited
 classes/design.
+
+# 2. WebApp Angular consumes app REST API
+Location: webapp
+
+To run locally assumes:
+* Angular cli installed
+* npm etc..
+* Java springboot app is running via `mvn sprint-boot:run`
+
+
+`cd webapp`
+`npm install`
+`npm run start`
+
+`open a browser on http://localhost:4200`
+
 
 
 

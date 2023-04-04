@@ -1,0 +1,35 @@
+<div>
+  <table class="table table-bordered table-gray">
+
+    <tbody>
+      <tr *ngFor="let rowEl of layout; let i = index">
+        <td *ngFor="let colEl of rowEl; let j = index" scope="col">
+          <div class="grid" *ngIf="isPlaneOccupied(colEl)">
+            <img
+              class="plane"
+              src="/assets/airplane.svg"
+              alt="Bootstrap"
+              width="32"
+              height="32"
+            />
+          </div>
+          <div class="grid" *ngIf="isTruckOccupied(colEl)">
+            <img
+              src="/assets/truck.svg"
+              alt="Bootstrap"
+              width="32"
+              height="32"
+            />
+          </div>
+        </td>
+        <td>{{rowCounters[i]}}</td>
+      </tr>
+    </tbody>
+    <tfoot >
+      <tr>
+        <th *ngFor="let count of colCounters; let i = index" scope="col">{{count}}</th>
+        <th></th>
+      </tr>
+    </tfoot>
+  </table>
+</div>

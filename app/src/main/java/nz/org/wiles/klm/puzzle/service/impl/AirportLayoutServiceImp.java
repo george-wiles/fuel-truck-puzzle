@@ -1,6 +1,6 @@
 package nz.org.wiles.klm.puzzle.service.impl;
 
-import nz.org.wiles.klm.puzzle.factory.AirportLayoutFactory;
+import nz.org.wiles.klm.puzzle.layout.AirportLayoutFactory;
 import nz.org.wiles.klm.puzzle.model.Airport;
 import nz.org.wiles.klm.puzzle.model.Plane;
 import nz.org.wiles.klm.puzzle.service.AirportLayoutService;
