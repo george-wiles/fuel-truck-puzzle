@@ -52,7 +52,7 @@ public class LayoutProximityAllocator {
     for (int row = 0; row < grid.length; row++) {
       for (int col = 0; col < grid[row].length; col++) {
         Grid pos = grid[row][col];
-        System.out.println(String.format("  (%d,%d) pos: [%s]", row, col, pos));
+        // System.out.println(String.format("  (%d,%d) pos: [%s]", row, col, pos));
         if (pos.hasPlane() && !((Plane)pos.getVehicle()).isFuelling()) {
           Plane plane = (Plane)pos.getVehicle();
           for (GridDirectionType direction: plane.getAvailableFuelingPoints()) {
