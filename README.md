@@ -15,6 +15,38 @@ TEST: AirportLayoutServiceImpTest.java
 2. Increase complexity with 4 by 4 with 4 planes
 3. Test against master 7 by 7 grid allocation
 
+# How to Run
+The puzzle can be solved by running the unit tests that verifies the grid layout has allocated the planes
+and trucks to their expected positions in the grid. As above there are three tests including the 7 by 7 model solution.
+
+## Pre-requistes 
+1. Built and testetd with:
+1.1. Oracle OpenJDK version 18 \
+1.2. Maven 3.8.5
+
+Running test
+
+1. Run `mvn clean install`
+2. This will run the 3 tests described above
+```
+F|E|P|E|F|E|F
+P|E|F|E|P|E|P
+E|E|E|E|E|F|P
+E|F|E|E|E|E|E
+E|P|E|E|E|E|E
+F|E|E|P|E|E|F
+P|E|E|F|E|E|P
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.421 s - in nz.org.wiles.klm.puzzle.service.impl.AirportLayoutServiceImpTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+```
+
 # Java springboot
 This initial revision is written in Java with Springboot, initially
 I was going to build a quick REST api GET /api/v1/layout and hook it
