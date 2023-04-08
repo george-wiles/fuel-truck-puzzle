@@ -1,6 +1,5 @@
 package nz.org.wiles.klm.puzzle.layout;
 
-import lombok.extern.slf4j.Slf4j;
 import nz.org.wiles.klm.puzzle.model.Airport;
 import nz.org.wiles.klm.puzzle.model.Grid;
 import nz.org.wiles.klm.puzzle.model.grid.GridLayout;
@@ -14,7 +13,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Component
 public class AirportLayoutFactory {
 

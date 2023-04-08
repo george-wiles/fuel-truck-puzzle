@@ -6,5 +6,6 @@ export interface Airport {
 export enum OccupationType {
   PLANE = "PLANE",
   FUEL_TRUCK = "FUEL_TRUCK",
-  EMPTY = "EMPTY"
+  EMPTY = "EMPTY",
+  EDIT = "EDIT"
 }
