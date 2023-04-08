@@ -1,6 +1,8 @@
 package nz.org.wiles.klm.puzzle.layout;
 
 import nz.org.wiles.klm.puzzle.model.Grid;
+import nz.org.wiles.klm.puzzle.model.OccupationType;
+import nz.org.wiles.klm.puzzle.model.Plane;
 import nz.org.wiles.klm.puzzle.model.grid.GridDirectionType;
 import nz.org.wiles.klm.puzzle.web.api.LayoutRequestApi;
 import org.springframework.stereotype.Component;
@@ -89,7 +91,50 @@ public class LayoutValidator {
                 && sumCol(col, layout) <= colFuelTruckCount[col]);
   }
 
-  public void validate(LayoutRequestApi request) {
+  public boolean isAdjacent(Point to, Grid[][] grid) {
+    // above
+    if (isAboveAdjacent(to, grid)) {
+      return true;
+    }
+    // left
+    if (to.y > 0 && FUEL_TRUCK == grid[to.x][to.y-1].getOccupationType()) {
+      return true;
+    }
+    // right
+    if (to.y + 1 < grid[to.x].length && FUEL_TRUCK == grid[to.x][to.y+1].getOccupationType()) {
+      return true;
+    }
+    // below
+    if (isBelowAdjacent(to, grid)) {
+      return true;
+    }
+    return false;
+  }
 
+  private boolean isAboveAdjacent(Point to, Grid[][] grid) {
+    if (to.x > 0) {
+      if (isColumnAdjacent(to.x - 1, to.y - 1, grid)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean isBelowAdjacent(Point to, Grid[][] grid) {
+    if (to.x + 1 < grid.length) {
+      if (isColumnAdjacent(to.x + 1, to.y - 1, grid)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean isColumnAdjacent(int row, int col, Grid[][] grid) {
+    for (int i = 0; i < 3; i++) {
+      if ((col + i >=0 && col + i < grid[row].length) && FUEL_TRUCK == grid[row][col + i].getOccupationType()) {
+        return true;
+      }
+    }
+    return false;
   }
 }

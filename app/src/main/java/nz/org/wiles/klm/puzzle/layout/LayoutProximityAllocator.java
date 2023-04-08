@@ -54,7 +54,7 @@ public class LayoutProximityAllocator {
           Plane plane = (Plane)pos.getVehicle();
           for (GridDirectionType direction: plane.getAvailableFuelingPoints()) {
             Point to = directionToGrid(row, col, direction);
-            if (validator.isAvailable(to, grid)) {
+            if (validator.isAvailable(to, grid) && !validator.isAdjacent(to, grid)) {
               plane.setFuelTruckLocation(Grid.builder().vehicle(FuelTruck.builder().gridPos(to).build()).occupationType(FUEL_TRUCK).build());
               grid[to.x][to.y] = plane.getFuelTruckLocation();
               if (allocateAll(grid)) {
