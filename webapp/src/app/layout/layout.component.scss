@@ -1,0 +1,32 @@
+
+.grid {
+  font-size: 2rem;
+  color: cornflowerblue;
+  text-align: center;
+  margin: auto;
+}
+.grid:hover {
+  opacity: 0.25;
+}
+.plane {
+  color: #336699;
+}
+.grid-icon {
+  align-self: center;
+}
+.blank-icon {
+  width: 100%;
+}
+table.table-bordered{
+  border:1px solid lightSteelBlue;
+  margin-top:20px;
+
+}
+table.table-bordered > thead > tr > th {
+  border:1px solid lightSteelBlue;
+
+}
+table.table-bordered > tbody > tr > td {
+  border:1px solid lightSteelBlue;
+  align-self: baseline;
+}
