@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import nz.org.wiles.klm.puzzle.model.OccupationType;
 
-import java.util.List;
 
 @Data
 @NoArgsConstructor

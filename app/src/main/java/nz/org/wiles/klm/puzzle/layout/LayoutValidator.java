@@ -1,10 +1,7 @@
 package nz.org.wiles.klm.puzzle.layout;
 
 import nz.org.wiles.klm.puzzle.model.Grid;
-import nz.org.wiles.klm.puzzle.model.OccupationType;
-import nz.org.wiles.klm.puzzle.model.Plane;
 import nz.org.wiles.klm.puzzle.model.grid.GridDirectionType;
-import nz.org.wiles.klm.puzzle.web.api.LayoutRequestApi;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
