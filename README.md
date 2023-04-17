@@ -1,5 +1,5 @@
 # Overview
-The KLM truck fueling puzzle has two parts: 
+The truck fueling puzzle has two parts: 
 (i) the Java API that solves the layout as per the General Approach and provides
  a simple rest API to retrieve the layout.
 (ii) an Angular frontend that calls the app API and renders on a webpage.
