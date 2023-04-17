@@ -1,25 +1,14 @@
-import { Airport } from '../model/airport-model';
-import { Component, OnInit } from '@angular/core';
 
+import { Component } from '@angular/core';
+import { AirportService } from './airport.service';
 
 @Component({
   selector: 'app-airport',
   templateUrl: './airport.component.html',
-  styleUrls: ['./airport.component.sass']
+  styleUrls: ['./airport.component.scss'],
 })
-export class AirportComponent  implements OnInit {
-  airport: Airport;
-  rowTruckCounters = [ 3, 1, 1, 1, 0, 2, 1 ];
-  colTruckCounters = [ 2, 1, 1, 1, 1, 1, 2 ];
-
-  constructor() {
-    this.airport = {
-      airportLayout: []
-    };
+export class AirportComponent {
+  constructor(private airportService: AirportService) {
   }
-
-  ngOnInit(): void {
-  }
-
 
 }

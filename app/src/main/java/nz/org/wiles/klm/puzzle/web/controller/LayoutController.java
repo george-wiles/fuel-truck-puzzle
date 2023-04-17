@@ -36,40 +36,6 @@ public class LayoutController {
     this.layoutService = layoutService;
   }
 
-  @GetMapping({"/layout/{id}"})
-  @CrossOrigin(origins = "http://localhost:4200")
-  public ResponseEntity<LayoutResponseApi> getLayout(@PathVariable String id) {
-
-    int[] colFuelTruckCounters = {2, 1, 1, 1, 1, 1, 2};
-    int[] rowFuelTruckCounters = {3, 1, 1, 1, 0, 2, 1};
-
-    Plane[] planes = {
-        Plane.builder().gridPos(new Point(0,2)).build(),
-        Plane.builder().gridPos(new Point(1,0)).build(),
-        Plane.builder().gridPos(new Point(1,4)).build(),
-        Plane.builder().gridPos(new Point(1,6)).build(),
-        Plane.builder().gridPos(new Point(2,6)).build(),
-        Plane.builder().gridPos(new Point(4,1)).build(),
-        Plane.builder().gridPos(new Point(5,3)).build(),
-        Plane.builder().gridPos(new Point(6,0)).build(),
-        Plane.builder().gridPos(new Point(6,6)).build(),
-    };
-
-    // act
-    Airport airport = layoutService.initialiseLayout(
-        rowFuelTruckCounters,
-        colFuelTruckCounters,
-        planes);
-
-    Grid[][] result = airport.getGridLayout().getLayout();
-
-    final LayoutResponseApi responseApi =
-        LayoutResponseApi.builder()
-            .airportLayout(mapGrid(result)).build();
-
-    return new ResponseEntity<>(responseApi, HttpStatus.OK);
-  }
-
   @PostMapping({"/layout"})
   @CrossOrigin(origins = "http://localhost:4200")
   public ResponseEntity<LayoutResponseApi> getLayout(@RequestBody LayoutRequestApi request) {

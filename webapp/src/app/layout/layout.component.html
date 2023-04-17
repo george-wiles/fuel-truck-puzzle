@@ -2,7 +2,7 @@
 
   <table class="table table-bordered table-gray">
     <tbody>
-      <tr *ngFor="let rowEl of layout; let i = index">
+      <tr *ngFor="let rowEl of airport.airportLayout; let i = index">
         <td *ngFor="let colEl of rowEl; let j = index" scope="col" >
           <div class="grid" (click)="onClick(i, j)">
             <i class="{{getSvgSrc(colEl)}}" ></i>
@@ -15,7 +15,8 @@
               <input
                type="number"
                 formControlName="rowEl"
-                class="form-control"/>
+                class="form-control"
+                />
             </div>
           </div>
 
@@ -29,7 +30,8 @@
             <div class="form-outline" style="width: 5em;">
               <input type="number"
                 formControlName="colEl"
-                class="form-control"/>
+                class="form-control"
+                />
             </div>
           </div>
         </th>
