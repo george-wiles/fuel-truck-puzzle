@@ -16,18 +16,18 @@ const repoName = "puzzle-webapp";
  * Creates and deploys a vpc, load balancer Fargate serverless instance with a dockerised springboot
  * app using ECR/EC2 via code build pipeline using aws-ecs-patterns.
  * 
- * Will cost some $ as docker java 11 template and ECR is not free tier.
+ * NOTE: Will cost some $ as docker java 11 template and ECR is not free tier.  Node.JS lambda serverless probably
+ * a nicer option.
  */
 export class ContDeployDockerStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    var oauthToken = SecretValue.secretsManager('github/portal/oauth/token/');
+    var oauthToken = SecretValue.secretsManager('github/*****/token/');
 
     let sourceOutput: Artifact;
     let buildOutput: Artifact;
 
-    //Place resource definitions here.
     var vpc = new Vpc(this, 'puzzle.vpc', {
       cidr: '10.0.0.0/16',
       maxAzs: 2
@@ -36,20 +36,20 @@ export class ContDeployDockerStack extends Stack {
   
     const ecrRepository = ecr.Repository.fromRepositoryName(this, repoName, repoName);
 
-    var pipelineProject = this.createPipelineProject(ecrRepository);
+    const pipelineProject = this.createPipelineProject(ecrRepository);
     pipelineProject.role?.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryPowerUser'));
 
     sourceOutput = new Artifact();
     buildOutput = new Artifact();
 
-    var githubSourceAction = this.createWilesPortalGithubSourceAction(sourceOutput, oauthToken);
-    console.log("git action: " + githubSourceAction);
-    var buildAction = this.createWilesPortalBuildAction(pipelineProject, sourceOutput, buildOutput);
-    console.log("build action: " + buildAction);
-    var ecsDeployAction = this.createEcsDeployAction(vpc, ecrRepository, buildOutput, pipelineProject);
-    console.log("build action: " + ecsDeployAction);
+    const githubSourceAction = this.createWilesPortalGithubSourceAction(sourceOutput, oauthToken);
 
-    var pipeline = new Pipeline(this, 'puzzle_pipeline', {
+    const buildAction = this.createWilesPortalBuildAction(pipelineProject, sourceOutput, buildOutput);
+   
+    const ecsDeployAction = this.createEcsDeployAction(vpc, ecrRepository, buildOutput, pipelineProject);
+   
+
+    const pipeline = new Pipeline(this, 'puzzle_pipeline', {
       stages: [
         {
           stageName: 'Source',
@@ -74,7 +74,7 @@ export class ContDeployDockerStack extends Stack {
    * create the Pipeline Project wuth Buildspec and stuff
    */
   private createPipelineProject(ecrRepo: ecr.IRepository): codebuild.PipelineProject {
-    var pipelineProject = new codebuild.PipelineProject(this, 'puzzle-codepipeline', {
+    const pipelineProject = new codebuild.PipelineProject(this, 'puzzle-codepipeline', {
       projectName: 'my-puzzle',
       environment: {
         buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
@@ -163,9 +163,9 @@ export class ContDeployDockerStack extends Stack {
    */
   public createWilesPortalGithubSourceAction(sourceOutput: Artifact, oauthToken: SecretValue): GitHubSourceAction {
     return new GitHubSourceAction({
-      actionName: 'wiles_puzzle_github_source',
-      owner: 'george-wiles',
-      repo: 'puzzle-webapp',
+      actionName: '*****',
+      owner: '*****',
+      repo: '*****',
       oauthToken: oauthToken,
       output: sourceOutput,
       branch: 'main',
@@ -176,7 +176,7 @@ export class ContDeployDockerStack extends Stack {
    * Creates the BuildAction for Codepipeline build step
    * @param pipelineProject pipelineProject to use 
    * @param sourceActionOutput input to build
-   * @param buildOutput where to put the ouput
+   * @param buildOutput where to put the output
    */
   public createWilesPortalBuildAction(pipelineProject: codebuild.PipelineProject, sourceActionOutput: Artifact,
     buildOutput: Artifact): CodeBuildAction {
@@ -199,7 +199,7 @@ export class ContDeployDockerStack extends Stack {
   };
 
   createLoadBalancedFargateService(scope: Construct, vpc: Vpc, ecrRepository: ecr.IRepository, pipelineProject: PipelineProject) {
-    var fargateService = new ecspatterns.ApplicationLoadBalancedFargateService(scope, 'puzzlePortalLbFargateService', {
+    const fargateService = new ecspatterns.ApplicationLoadBalancedFargateService(scope, 'puzzlePortalLbFargateService', {
       vpc: vpc,
       memoryLimitMiB: 512,
       cpu: 256,

@@ -1,8 +1,13 @@
 # Overview
+
+This was a problem assigned to me during a Java interview, I went a bit further and provided a
+very simple front-end Angular app and deployment via IaC AWS.
 The truck fueling puzzle has two parts: 
 (i) the Java API that solves the layout as per the General Approach and provides
  a simple rest API to retrieve the layout.
 (ii) an Angular frontend that calls the app API and renders on a webpage.
+
+![](/Users/georgewiles/dev/git/george-wiles/doof/klm-puzzle/images/AircraftRefuellingPuzzle.png)
 
 # General Approach
 1. Create a grid of m by n cells to represent the parking lot, plane and the fuel trucks.
@@ -15,76 +20,24 @@ The truck fueling puzzle has two parts:
 
 # 1. App Java based algorithm with simple REST API
 Location: app
+## Pre-requisites
+Oracle OpenJDK version 18
+Maven 3.8.5
 
-# Test driven approach
-TEST: AirportLayoutServiceImpTest.java
-1. Start with a simple 4 by 4 grid with 3 planes
-2. Increase complexity with 4 by 4 with 4 planes
-3. Test against master 7 by 7 grid allocation
+* `cd app`
+* `mvn clean install`
+* `mvn spring-boot:run`
 
-# How to Run
-The puzzle can be solved by running the unit tests that verifies the grid layout has allocated the planes
-and trucks to their expected positions in the grid. As above there are three tests including the 7 by 7 model solution.
-
-## Pre-requistes 
-1. Built and testetd with:
-1.1. Oracle OpenJDK version 18 \
-1.2. Maven 3.8.5
-
-Running test
-
-1. Run `mvn clean install`
-2. This will run the 3 tests described above
-```
-F|E|P|E|F|E|F
-P|E|F|E|P|E|P
-E|E|E|E|E|F|P
-E|F|E|E|E|E|E
-E|P|E|E|E|E|E
-F|E|E|P|E|E|F
-P|E|E|F|E|E|P
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.421 s - in nz.org.wiles.klm.puzzle.service.impl.AirportLayoutServiceImpTest
-[INFO] 
-[INFO] Results:
-[INFO] 
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
-[INFO] 
-[INFO] ------------------------------------------------------------------------
-[INFO] BUILD SUCCESS
-[INFO] ------------------------------------------------------------------------
-```
-
-# Java springboot
-This initial revision is written in Java with Springboot, initially
-I was going to build a quick REST api GET /api/v1/layout and hook it
-up with an Angular frontend to build a simple UI, however with the
-time constraints just implemented the service layer.
-
-# References
-No references to quote. I identified the steps and knew I required
-some form of backtracking algorithm with recursion. 
-
-# Design
-Rather than taking a pure functional approach I took an
-Object Orientation approach, which in hindsight was a bit
-overkill, with time constraints probably should have just
-written a simple standalone application with limited
-classes/design.
 
 # 2. WebApp Angular consumes app REST API
 Location: webapp
+## Pre-requisites
+Angular cli installed
 
-To run locally assumes:
-* Angular cli installed
-* npm etc..
-* Java springboot app is running via `mvn sprint-boot:run`
-
-
-`cd webapp`
-`npm install`
-`npm run start`
-
-`open a browser on http://localhost:4200`
+* `cd webapp`
+* `npm install`
+* `npm run start`
+* `open a browser on http://localhost:4200`
 
 
 
